@@ -1,6 +1,6 @@
 # CineLista: catálogo de filmes
 
-Aplicação web para organizar filmes que você quer assistir e os que já viu. O projeto reúne uma interface responsiva em HTML, CSS e JavaScript e uma API REST com persistência em MongoDB.
+Aplicação web para organizar filmes que você quer assistir e os que já viu. O projeto reúne uma interface responsiva em React e uma API REST com persistência em MongoDB.
 
 Construído por [Gileno Oliveira](https://github.com/Noobdf) como projeto de estudo e portfólio.
 
@@ -23,20 +23,25 @@ Validar entradas no servidor e persistir os dados em MongoDB.
 
 ## Tecnologias e organização
 
-Node.js 22+, Express 5 e Mongoose 8. A interface usa JavaScript sem framework e chama a API na mesma origem. Fontes do Google Fonts são opcionais; há fontes alternativas locais.
+React 19, Vite 8, Node.js 22.12+, Express 5 e Mongoose 8. A interface usa componentes React e chama a API na mesma origem. Fontes do Google Fonts são opcionais; há fontes alternativas locais.
 
 ```text
 app.js                       # Express, arquivos estáticos e tratamento de erros
 index.js                     # Conexão com MongoDB e inicialização do servidor
 rsc/models/filme.js           # Modelo e validações do banco
 rsc/routes/filmes.routes.js   # CRUD e validação das requisições
-public/                      # Interface web
+client/src/App.jsx           # Estado da coleção e integração com a API
+client/src/components/       # Formulário, cartões e confirmação de exclusão
+client/src/api.js            # Requisições HTTP e mensagens de erro
+client/src/styles.css        # Estilos responsivos
+vite.config.mjs              # Build e proxy da API no desenvolvimento
+dist/                        # Interface compilada, gerada pelo build
 test/filmes.test.js           # Testes HTTP com MongoDB temporário
 ```
 
 ## Executar localmente
 
-Requisitos: Node.js 22 ou superior e MongoDB local em execução, ou uma conexão MongoDB Atlas.
+Requisitos: Node.js 22.12 ou superior e MongoDB local em execução, ou uma conexão MongoDB Atlas.
 
 ```sh
 git clone https://github.com/Noobdf/WS.git
@@ -64,12 +69,29 @@ MONGODB_URI=mongodb://127.0.0.1:27017/catalogo_filmes
 ```
 
 ```sh
+npm run build
 npm start
-# Desenvolvimento com reinicialização automática:
-npm run dev
 ```
 
 Abra **http://localhost:3000**. O servidor só começa a aceitar conexões depois que o banco está disponível. O arquivo `.env` é ignorado pelo Git.
+
+## Desenvolvimento com React
+
+Com o MongoDB disponível e o `.env` configurado, abra dois terminais na pasta do projeto.
+
+No primeiro, inicie a API:
+
+```sh
+npm run dev:api
+```
+
+No segundo, inicie a interface React:
+
+```sh
+npm run dev
+```
+
+Acesse o endereço informado pelo Vite, normalmente **http://127.0.0.1:5173**. O Vite encaminha as chamadas `/api` para a porta definida em `PORT` no `.env`, ou 3000. As alterações nos componentes aparecem durante o desenvolvimento. Para executar a versão de produção, use `npm run build` e `npm start`; o Express entrega os arquivos gerados em `dist`.
 
 ## API REST
 
@@ -129,7 +151,7 @@ Erros retornam `{ "error": true, "message": "Descrição do erro" }`: 400 para e
 npm test
 ```
 
-Os testes fazem requisições HTTP reais e usam `mongodb-memory-server` para iniciar um MongoDB temporário isolado. Na primeira execução, é necessário acesso à internet para baixar o binário do MongoDB. Os testes não usam o banco configurado no `.env`.
+O comando gera a versão de produção do React antes de executar os testes. Os testes fazem requisições HTTP reais e usam `mongodb-memory-server` para iniciar um MongoDB temporário isolado. Na primeira execução, é necessário acesso à internet para baixar o binário do MongoDB. Os testes não usam o banco configurado no `.env`.
 
 Cobrem o ciclo completo de CRUD, persistência, entradas inválidas, atualização sem perder campos anteriores, IDs inválidos, registros inexistentes, JSON malformado e entrega da interface.
 
@@ -157,4 +179,5 @@ Adicionar paginação e busca no servidor.
 Criar contas e coleções por usuário.
 
 Publicar uma demonstração com ambiente e dados de exemplo.
+
 

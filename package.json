@@ -1,15 +1,29 @@
 {
   "name": "catalogo-de-filmes",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "Catálogo de filmes com interface web e API CRUD em Node.js, Express e MongoDB",
+  "description": "CineLista: catálogo de filmes com React, Node.js, Express e MongoDB",
   "main": "index.js",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "start": "node --env-file-if-exists=.env index.js",
-    "dev": "node --env-file-if-exists=.env --watch index.js",
+    "dev": "vite",
+    "dev:api": "node --env-file-if-exists=.env --watch index.js",
+    "build": "vite build",
+    "pretest": "npm run build",
     "test": "node --test"
   },
-  "dependencies": { "express": "5.1.0", "mongoose": "8.18.2" },
-  "devDependencies": { "mongodb-memory-server": "10.2.3" }
+  "dependencies": {
+    "express": "5.1.0",
+    "mongoose": "8.18.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "6.2.1",
+    "mongodb-memory-server": "10.2.3",
+    "vite": "8.3.5"
+  }
 }

@@ -6,7 +6,7 @@ const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '100kb' }));
 app.use('/api/filmes', routes);
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'dist')));
 app.use((req, res) => res.status(404).json({ error: true, message: 'Rota não encontrada.' }));
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
