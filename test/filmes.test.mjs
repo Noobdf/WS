@@ -1,22 +1,25 @@
-const { test, before, after, beforeEach } = require('node:test');
-const assert = require('node:assert/strict');
-const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
-const app = require('../app');
-const Filme = require('../rsc/models/filme');
+import { test, before, after, beforeEach } from 'node:test';
+import assert from 'node:assert/strict';
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { startServer } from './helpers/server.mjs';
+let Filme;
+let db;
 let mongo;
 let server;
 let base;
 
 before(async () => {
   mongo = await MongoMemoryServer.create();
-  await mongoose.connect(mongo.getUri());
-  server = app.listen(0, '127.0.0.1');
-  await new Promise((resolve) => server.once('listening', resolve));
-  base = `http://127.0.0.1:${server.address().port}`;
+  process.env.MONGODB_URI = mongo.getUri('cinelista_test');
+  db = await mongoose.createConnection(process.env.MONGODB_URI).asPromise();
+  Filme = db.collection('filmes');
+  server = await startServer();
+  base = server.base;
 });
 after(async () => {
-  if (server) await new Promise((resolve) => server.close(resolve));
+  if (server) await server.close();
+  if (db) await db.close();
   await mongoose.disconnect();
   if (mongo) await mongo.stop();
 });
@@ -46,7 +49,7 @@ test('CRUD completo: criar, listar, buscar, editar, persistir e excluir', async 
   assert.equal(filme.assistido, true);
   assert.equal(filme.genero, 'Ficção');
   assert.equal(filme.ano, null);
-  assert.equal((await Filme.findById(id)).titulo, 'Interestelar (revisto)');
+  assert.equal((await Filme.findOne({ _id: new mongoose.Types.ObjectId(id) })).titulo, 'Interestelar (revisto)');
   response = await request('DELETE', `/${id}`);
   assert.equal(response.status, 204);
   assert.equal(await response.text(), '');
@@ -65,9 +68,10 @@ test('rejeita títulos vazios, tipos inválidos e campos não permitidos sem gra
 });
 
 test('valida também na edição e mantém o registro quando a alteração é inválida', async () => {
-  const filme = await Filme.create({ titulo: 'Original', ano: 2000 });
-  assert.equal((await request('PUT', `/${filme.id}`, { titulo: '', ano: 2001 })).status, 400);
-  assert.equal((await Filme.findById(filme.id)).titulo, 'Original');
+  const response = await request('POST', '', { titulo: 'Original', ano: 2000 });
+  const filme = (await response.json()).filme;
+  assert.equal((await request('PUT', `/${filme._id}`, { titulo: '', ano: 2001 })).status, 400);
+  assert.equal((await Filme.findOne({ _id: new mongoose.Types.ObjectId(filme._id) })).titulo, 'Original');
 });
 
 test('distingue IDs inválidos de registros inexistentes', async () => {
@@ -95,4 +99,13 @@ test('responde JSON para erros e disponibiliza a interface', async () => {
   const page = await fetch(base);
   assert.equal(page.status, 200);
   assert.match(await page.text(), /CineLista/);
+});
+
+test('limita o tamanho das requisições e exige JSON sem gravar dados inválidos', async () => {
+  const large = await fetch(`${base}/api/filmes`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ titulo: 'x'.repeat(110000) }) });
+  assert.equal(large.status, 413);
+  assert.equal((await large.json()).error, true);
+  const text = await fetch(`${base}/api/filmes`, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: 'texto' });
+  assert.equal(text.status, 415);
+  assert.equal(await Filme.countDocuments(), 0);
 });

@@ -1,12 +1,9 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const Filme = require('../models/filme');
-const router = express.Router();
+import { ApiError } from './http.js';
+
 const fields = ['titulo', 'ano', 'genero', 'sinopse', 'assistido', 'atores', 'detalhes', 'premiacoes'];
 
-function validate(req, res, next) {
-  const body = req.body;
-  const reject = (message) => res.status(400).json({ error: true, message });
+export function validateFilm(body) {
+  const reject = (message) => { throw new ApiError(400, message); };
   if (!body || Array.isArray(body) || typeof body !== 'object') return reject('Envie um objeto JSON.');
   if (!Object.keys(body).length) return reject('Informe os dados do filme.');
   if (Object.keys(body).some((key) => !fields.includes(key))) return reject('Há campos não permitidos.');
@@ -31,35 +28,6 @@ function validate(req, res, next) {
   if (body.premiacoes !== undefined && (!Array.isArray(body.premiacoes) || body.premiacoes.length > 100 || body.premiacoes.some((v) => !v || typeof v !== 'object' || Array.isArray(v) || Object.keys(v).some((k) => !['titulo', 'ano'].includes(k)) || typeof v.titulo !== 'string' || !v.titulo.trim() || v.titulo.length > 150 || (v.ano !== undefined && (!Number.isInteger(v.ano) || v.ano < 1888 || v.ano > 2100))))) {
     return reject('Premiações deve ser uma lista de títulos e anos válidos.');
   }
-  next();
+  return body;
 }
 
-router.param('id', (req, res, next, id) => {
-  if (!mongoose.isObjectIdOrHexString(id)) return res.status(400).json({ error: true, message: 'ID inválido.' });
-  next();
-});
-
-router.get('/', async (req, res) => {
-  const filmes = await Filme.find().sort({ createdAt: -1, _id: -1 }).lean();
-  res.json({ error: false, filmes });
-});
-router.get('/:id', async (req, res) => {
-  const filme = await Filme.findById(req.params.id).lean();
-  if (!filme) return res.status(404).json({ error: true, message: 'Filme não encontrado.' });
-  res.json({ error: false, filme });
-});
-router.post('/', validate, async (req, res) => {
-  const filme = await Filme.create(req.body);
-  res.location(`/api/filmes/${filme.id}`).status(201).json({ error: false, filme });
-});
-router.put('/:id', validate, async (req, res) => {
-  const filme = await Filme.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true, runValidators: true });
-  if (!filme) return res.status(404).json({ error: true, message: 'Filme não encontrado.' });
-  res.json({ error: false, filme });
-});
-router.delete('/:id', async (req, res) => {
-  const filme = await Filme.findByIdAndDelete(req.params.id);
-  if (!filme) return res.status(404).json({ error: true, message: 'Filme não encontrado.' });
-  res.status(204).end();
-});
-module.exports = router;

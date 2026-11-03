@@ -1,29 +1,26 @@
 {
-  "name": "catalogo-de-filmes",
-  "version": "3.0.0",
+  "name": "cinelista",
+  "version": "4.0.0",
   "private": true,
-  "description": "CineLista: catálogo de filmes com React, Node.js, Express e MongoDB",
-  "main": "index.js",
+  "description": "CineLista: aplicação React com Next.js e MongoDB",
   "engines": {
     "node": ">=22.12.0"
   },
   "scripts": {
-    "start": "node --env-file-if-exists=.env index.js",
-    "dev": "vite",
-    "dev:api": "node --env-file-if-exists=.env --watch index.js",
-    "build": "vite build",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "pretest": "npm run build",
-    "test": "node --test"
+    "test": "node --test test/filmes.test.mjs"
   },
   "dependencies": {
-    "express": "5.1.0",
     "mongoose": "8.18.2",
+    "next": "16.4.4",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "6.2.1",
-    "mongodb-memory-server": "10.2.3",
-    "vite": "8.3.5"
-  }
+    "mongodb-memory-server": "10.2.3"
+  },
+  "type": "module"
 }

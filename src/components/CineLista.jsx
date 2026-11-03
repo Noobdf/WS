@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { request } from './api.js';
-import FilmForm from './components/FilmForm.jsx';
-import FilmCard from './components/FilmCard.jsx';
-import DeleteDialog from './components/DeleteDialog.jsx';
+'use client';
 
-export default function App() {
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { request } from '../lib/api.js';
+import FilmForm from './FilmForm.jsx';
+import FilmCard from './FilmCard.jsx';
+import DeleteDialog from './DeleteDialog.jsx';
+
+export default function CineLista() {
   const [filmes, setFilmes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);

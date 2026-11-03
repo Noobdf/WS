@@ -1,47 +1,55 @@
-# CineLista: catálogo de filmes
+# CineLista
 
-Aplicação web para organizar filmes que você quer assistir e os que já viu. O projeto reúne uma interface responsiva em React e uma API REST com persistência em MongoDB.
+Catálogo de filmes construído com **React, Next.js e MongoDB**. Organize os filmes que quer assistir, registre os que já viu e encontre sua próxima sessão.
 
-Construído por [Gileno Oliveira](https://github.com/Noobdf) como projeto de estudo e portfólio.
+Projeto de estudo e portfólio de [Gileno Oliveira](https://github.com/Noobdf).
 
-![Interface do CineLista com formulário de cadastro, busca e coleção de filmes](docs/cinelista.png)
+![Interface do CineLista com formulário de cadastro e coleção de filmes](docs/cinelista.png)
 
-## Funcionalidades
+## O que a aplicação faz
 
-Cadastrar, listar, consultar, editar e excluir filmes.
+Permite cadastrar, listar, consultar, editar e excluir filmes. Cada registro pode ter título, ano, gênero, sinopse e indicação de assistido.
 
-Registrar título, ano, gênero, sinopse e status de assistido.
+A interface combina busca por título ou gênero com filtros de status, confirma exclusões e informa carregamento, coleção vazia ou falha de conexão. Os dados são validados no servidor e persistidos em MongoDB.
 
-Buscar por título ou gênero e combinar a busca com filtros de status.
+## Estrutura React com Next.js
 
-Confirmar a exclusão antes de remover um registro.
-
-Exibir estados de carregamento, coleção vazia e erros de conexão.
-
-Validar entradas no servidor e persistir os dados em MongoDB.
-
-
-## Tecnologias e organização
-
-React 19, Vite 8, Node.js 22.12+, Express 5 e Mongoose 8. A interface usa componentes React e chama a API na mesma origem. Fontes do Google Fonts são opcionais; há fontes alternativas locais.
+A aplicação usa o App Router do Next.js. A página e o layout são componentes React. A coleção, o formulário e os cartões usam estado e eventos do React. As operações com o banco ficam nas rotas de servidor do mesmo projeto.
 
 ```text
-app.js                       # Express, arquivos estáticos e tratamento de erros
-index.js                     # Conexão com MongoDB e inicialização do servidor
-rsc/models/filme.js           # Modelo e validações do banco
-rsc/routes/filmes.routes.js   # CRUD e validação das requisições
-client/src/App.jsx           # Estado da coleção e integração com a API
-client/src/components/       # Formulário, cartões e confirmação de exclusão
-client/src/api.js            # Requisições HTTP e mensagens de erro
-client/src/styles.css        # Estilos responsivos
-vite.config.mjs              # Build e proxy da API no desenvolvimento
-dist/                        # Interface compilada, gerada pelo build
-test/filmes.test.js           # Testes HTTP com MongoDB temporário
+src/
+  app/
+    layout.jsx                 Layout e metadados
+    page.jsx                   Página principal em React
+    globals.css                Estilos responsivos
+    api/
+      filmes/
+        route.js               Listagem e cadastro
+        [id]/route.js          Consulta, edição e exclusão
+      [...path]/route.js       Resposta para rotas de API inexistentes
+  components/
+    CineLista.jsx              Estado da coleção, busca e filtros
+    FilmForm.jsx               Formulário controlado em React
+    FilmCard.jsx               Cartão de filme
+    DeleteDialog.jsx           Confirmação de exclusão
+  lib/
+    api.js                     Chamadas HTTP da interface
+    database.js                Conexão reutilizável com MongoDB
+    http.js                    Leitura de JSON e tratamento de erros
+    validation.js              Validação dos dados recebidos
+  models/
+    Filme.js                   Modelo Mongoose
+test/
+  filmes.test.mjs              Testes HTTP do CRUD
+  helpers/server.mjs          Inicialização do Next.js para testes
+next.config.mjs               Configuração da aplicação
 ```
+
+**Tecnologias:** React 19, Next.js 16, JavaScript, CSS, MongoDB e Mongoose. Node.js executa o Next.js no servidor.
 
 ## Executar localmente
 
-Requisitos: Node.js 22.12 ou superior e MongoDB local em execução, ou uma conexão MongoDB Atlas.
+Tenha Node.js 22.12 ou superior e MongoDB local em execução, ou uma conexão MongoDB Atlas.
 
 ```sh
 git clone https://github.com/Noobdf/WS.git
@@ -49,61 +57,56 @@ cd WS
 npm ci
 ```
 
-Copie `.env.example` para `.env`:
+Copie `.env.example` para `.env.local`.
+
+No PowerShell:
 
 ```powershell
-# Windows PowerShell
-Copy-Item .env.example .env
+Copy-Item .env.example .env.local
 ```
+
+No Linux ou macOS:
 
 ```sh
-# Linux ou macOS
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-Ajuste o arquivo se necessário:
+Configure a conexão:
 
 ```dotenv
-PORT=3000
 MONGODB_URI=mongodb://127.0.0.1:27017/catalogo_filmes
 ```
+
+Inicie a aplicação inteira com um comando:
+
+```sh
+npm run dev
+```
+
+Abra **http://localhost:3000**. A interface React e as rotas da API são atendidas pelo Next.js. Não é necessário iniciar outro servidor para a API.
+
+O Next.js carrega `.env.local` automaticamente. A conexão com MongoDB é aberta quando uma rota precisa acessar os dados. O arquivo de ambiente fica fora do versionamento.
+
+## Versão de produção
 
 ```sh
 npm run build
 npm start
 ```
 
-Abra **http://localhost:3000**. O servidor só começa a aceitar conexões depois que o banco está disponível. O arquivo `.env` é ignorado pelo Git.
+O primeiro comando compila a aplicação. O segundo inicia o Next.js em produção. A pasta `.next` é gerada localmente e ignorada pelo Git.
 
-## Desenvolvimento com React
-
-Com o MongoDB disponível e o `.env` configurado, abra dois terminais na pasta do projeto.
-
-No primeiro, inicie a API:
-
-```sh
-npm run dev:api
-```
-
-No segundo, inicie a interface React:
-
-```sh
-npm run dev
-```
-
-Acesse o endereço informado pelo Vite, normalmente **http://127.0.0.1:5173**. O Vite encaminha as chamadas `/api` para a porta definida em `PORT` no `.env`, ou 3000. As alterações nos componentes aparecem durante o desenvolvimento. Para executar a versão de produção, use `npm run build` e `npm start`; o Express entrega os arquivos gerados em `dist`.
-
-## API REST
+## API
 
 | Método | Rota | Resultado |
 | --- | --- | --- |
-| GET | `/api/filmes` | Lista filmes, dos mais recentes para os mais antigos. |
+| GET | `/api/filmes` | Lista os filmes mais recentes primeiro. |
 | GET | `/api/filmes/:id` | Consulta um filme. |
-| POST | `/api/filmes` | Cadastra e retorna o filme com status 201. |
-| PUT | `/api/filmes/:id` | Atualiza os campos enviados; título obrigatório. |
-| DELETE | `/api/filmes/:id` | Exclui e retorna status 204, sem corpo. |
+| POST | `/api/filmes` | Cadastra um filme e retorna status 201. |
+| PUT | `/api/filmes/:id` | Atualiza os campos enviados, com título obrigatório. |
+| DELETE | `/api/filmes/:id` | Exclui um filme e retorna status 204 sem corpo. |
 
-Envie `Content-Type: application/json` nas operações de cadastro e edição.
+Para cadastrar ou editar, envie `Content-Type: application/json` e um objeto como:
 
 ```json
 {
@@ -115,35 +118,13 @@ Envie `Content-Type: application/json` nas operações de cadastro e edição.
 }
 ```
 
-Exemplo de cadastro com curl:
+O cadastro retorna `{ "error": false, "filme": { ... } }`, com os dados do filme, `_id`, `createdAt` e `updatedAt`. A listagem retorna `{ "error": false, "filmes": [ ... ] }`.
 
-```sh
-curl -X POST http://localhost:3000/api/filmes -H "Content-Type: application/json" -d '{"titulo":"Interestelar","ano":2014,"assistido":false}'
-```
+O título deve ter entre 1 e 150 caracteres depois de remover espaços das pontas. Ano aceita um inteiro entre 1888 e 2100, ou `null` para limpar o valor. Gênero aceita até 60 caracteres; sinopse, até 2000. O campo `assistido` recebe apenas booleano.
 
-Resposta:
+Os campos anteriores `atores`, `detalhes` e `premiacoes` continuam disponíveis pela API e são preservados quando omitidos na edição. Campos desconhecidos e operadores de atualização enviados pelo cliente são rejeitados.
 
-```json
-{
-  "error": false,
-  "filme": {
-    "_id": "ID_GERADO_PELO_MONGODB",
-    "titulo": "Interestelar",
-    "ano": 2014,
-    "genero": "",
-    "sinopse": "",
-    "assistido": false,
-    "atores": [],
-    "premiacoes": [],
-    "createdAt": "DATA_DE_CRIACAO",
-    "updatedAt": "DATA_DE_ATUALIZACAO"
-  }
-}
-```
-
-O título deve ter de 1 a 150 caracteres após remover espaços das pontas. Ano aceita inteiro de 1888 a 2100 ou `null` para limpar o valor; gênero aceita até 60 caracteres e sinopse até 2000. `assistido` aceita apenas booleano. Campos desconhecidos são rejeitados. Os campos anteriores `atores`, `detalhes` e `premiacoes` continuam disponíveis pela API e são preservados quando omitidos na edição.
-
-Erros retornam `{ "error": true, "message": "Descrição do erro" }`: 400 para entrada ou ID inválido, 404 para filme ou rota inexistente, 413 para corpo acima de 100 KB e 500 para falha interna.
+Os erros retornam `{ "error": true, "message": "Descrição do erro" }`. A aplicação usa 400 para entrada ou ID inválido, 404 para filme ou rota inexistente, 413 para corpo acima de 100 KB, 415 para um tipo de conteúdo diferente de JSON e 500 para falha interna. Métodos não suportados recebem a resposta 405 do Next.js.
 
 ## Testes
 
@@ -151,33 +132,16 @@ Erros retornam `{ "error": true, "message": "Descrição do erro" }`: 400 para e
 npm test
 ```
 
-O comando gera a versão de produção do React antes de executar os testes. Os testes fazem requisições HTTP reais e usam `mongodb-memory-server` para iniciar um MongoDB temporário isolado. Na primeira execução, é necessário acesso à internet para baixar o binário do MongoDB. Os testes não usam o banco configurado no `.env`.
+O comando compila o Next.js e inicia uma instância da aplicação para testes HTTP com um MongoDB temporário isolado. Na primeira execução, é necessário acesso à internet para baixar o binário do MongoDB usado por `mongodb-memory-server`.
 
-Cobrem o ciclo completo de CRUD, persistência, entradas inválidas, atualização sem perder campos anteriores, IDs inválidos, registros inexistentes, JSON malformado e entrega da interface.
+Os sete testes cobrem o CRUD completo, persistência, validação no cadastro e na edição, IDs inválidos, registros inexistentes, preservação de campos anteriores, entrega da página React, JSON malformado, limite de tamanho e tipo de conteúdo.
 
-## Decisões e limites
+O banco de testes é temporário e não usa a conexão pessoal configurada no arquivo de ambiente. O GitHub Actions executa o mesmo comando em cada atualização.
 
-O servidor e a conexão com o banco ficam separados para facilitar testes.
+## Decisões e próximos passos
 
-IDs do MongoDB identificam os filmes, inclusive quando existem títulos iguais.
+A coleção usa IDs do MongoDB, permitindo filmes com títulos iguais. A conexão é reutilizada no servidor, inclusive durante atualizações no desenvolvimento. Busca e filtros funcionam juntos na interface; paginação e busca no servidor são melhorias previstas para coleções maiores.
 
-A API aplica uma lista de campos permitidos e não recebe operadores de atualização do cliente.
+O catálogo é compartilhado e ainda não possui contas de usuário. Autenticação e autorização são próximos passos antes de oferecer coleções privadas.
 
-Busca e filtro são combinados na interface; para catálogos maiores, o próximo passo é busca e paginação no servidor.
-
-Este catálogo é compartilhado e ainda não possui autenticação. Uma versão com contas deve incluir autenticação e autorização antes de permitir alterações por usuários distintos.
-
-A versão anterior atendia a API na raiz `/`. Nesta versão, a interface ocupa `/` e a API fica em `/api/filmes`.
-
-O banco padrão mudou de `netflix` para `catalogo_filmes`. Para continuar usando os dados anteriores, configure `MONGODB_URI=mongodb://127.0.0.1:27017/netflix` no `.env`.
-
-
-## Próximos passos
-
-Adicionar paginação e busca no servidor.
-
-Criar contas e coleções por usuário.
-
-Publicar uma demonstração com ambiente e dados de exemplo.
-
-
+O banco padrão é `catalogo_filmes`. Para reutilizar os dados da primeira versão, configure `MONGODB_URI=mongodb://127.0.0.1:27017/netflix` no arquivo de ambiente.
