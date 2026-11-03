@@ -1,4 +1,4 @@
-# CineLista — catálogo de filmes
+# CineLista: catálogo de filmes
 
 Aplicação web para organizar filmes que você quer assistir e os que já viu. O projeto reúne uma interface responsiva em HTML, CSS e JavaScript e uma API REST com persistência em MongoDB.
 
@@ -8,12 +8,18 @@ Construído por [Gileno Oliveira](https://github.com/Noobdf) como projeto de est
 
 ## Funcionalidades
 
-- Cadastrar, listar, consultar, editar e excluir filmes.
-- Registrar título, ano, gênero, sinopse e status de assistido.
-- Buscar por título ou gênero e combinar a busca com filtros de status.
-- Confirmar a exclusão antes de remover um registro.
-- Exibir estados de carregamento, coleção vazia e erros de conexão.
-- Validar entradas no servidor e persistir os dados em MongoDB.
+Cadastrar, listar, consultar, editar e excluir filmes.
+
+Registrar título, ano, gênero, sinopse e status de assistido.
+
+Buscar por título ou gênero e combinar a busca com filtros de status.
+
+Confirmar a exclusão antes de remover um registro.
+
+Exibir estados de carregamento, coleção vazia e erros de conexão.
+
+Validar entradas no servidor e persistir os dados em MongoDB.
+
 
 ## Tecnologias e organização
 
@@ -129,16 +135,26 @@ Cobrem o ciclo completo de CRUD, persistência, entradas inválidas, atualizaç�
 
 ## Decisões e limites
 
-- O servidor e a conexão com o banco ficam separados para facilitar testes.
-- IDs do MongoDB identificam os filmes, inclusive quando existem títulos iguais.
-- A API aplica uma lista de campos permitidos e não recebe operadores de atualização do cliente.
-- Busca e filtro são combinados na interface; para catálogos maiores, o próximo passo é busca e paginação no servidor.
-- Este catálogo é compartilhado e ainda não possui autenticação. Uma versão com contas deve incluir autenticação e autorização antes de permitir alterações por usuários distintos.
-- A versão anterior atendia a API na raiz `/`. Nesta versão, a interface ocupa `/` e a API fica em `/api/filmes`.
-- O banco padrão mudou de `netflix` para `catalogo_filmes`. Para continuar usando os dados anteriores, configure `MONGODB_URI=mongodb://127.0.0.1:27017/netflix` no `.env`.
+O servidor e a conexão com o banco ficam separados para facilitar testes.
+
+IDs do MongoDB identificam os filmes, inclusive quando existem títulos iguais.
+
+A API aplica uma lista de campos permitidos e não recebe operadores de atualização do cliente.
+
+Busca e filtro são combinados na interface; para catálogos maiores, o próximo passo é busca e paginação no servidor.
+
+Este catálogo é compartilhado e ainda não possui autenticação. Uma versão com contas deve incluir autenticação e autorização antes de permitir alterações por usuários distintos.
+
+A versão anterior atendia a API na raiz `/`. Nesta versão, a interface ocupa `/` e a API fica em `/api/filmes`.
+
+O banco padrão mudou de `netflix` para `catalogo_filmes`. Para continuar usando os dados anteriores, configure `MONGODB_URI=mongodb://127.0.0.1:27017/netflix` no `.env`.
+
 
 ## Próximos passos
 
-- [ ] Adicionar paginação e busca no servidor.
-- [ ] Criar contas e coleções por usuário.
-- [ ] Publicar uma demonstração com ambiente e dados de exemplo.
+Adicionar paginação e busca no servidor.
+
+Criar contas e coleções por usuário.
+
+Publicar uma demonstração com ambiente e dados de exemplo.
+
